@@ -1,7 +1,10 @@
 # FREE AWS Cloud Project Bootcamp
 
 ![](https://codebuild.ca-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidzQ5bVBva0pyU1lDODd1Uy96dXFxelNnTEh0dHFXUXNRR3hLT2RzRmVOaTZ5T3ZadHpSS29CazZ2SHBYckc0VXJEWEI2NFBKalMwcWM4RHh1Tk02b3RnPSIsIml2UGFyYW1ldGVyU3BlYyI6IjZTSzAxY2NiTU4rMmJJVGsiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
-
+aws sns subscribe \
+    --topic-arn=arn:aws:sns:us-east-1:840986834987:billing-alarm \
+    --protocol=email \
+    --notification-endpoint=raheememmad98@gmail.com
 - Application: Cruddur
 - Cohort: 2023-A1
 
