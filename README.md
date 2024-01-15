@@ -11,25 +11,93 @@ This is the starting codebase that will be used in the FREE AWS Cloud Project Bo
 
 ![Cruddur Screenshot](_docs/assets/cruddur-screenshot.png)
 
-## Instructions
+## Getting the AWS CLI Working
 
-At the start of the bootcamp you need to create a new Github Repository from this template.
+### Install AWS CLI
 
-## Journaling Homework
+We have created a `.gitpod.yml` to include the following task.
+It will install the AWS CLI when gitpod workspace is launched.
 
-The `/journal` directory contains
+```sh
+tasks:
+  - name: aws-cli
+    env:
+      AWS_CLI_AUTO_PROMPT: on-partial
+    init: |
+      cd /workspace
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      unzip awscliv2.zip
+      sudo ./aws/install
+      cd $THEIA_WORKSPACE_ROOT
+```
+### Create a new User and Generate AWS Credentials
 
-- [ ] [Week 0](journal/week00.md)
-- [ ] [Week 1](journal/week01.md)
-- [ ] [Week 2](journal/week02.md)
-- [ ] [Week 3](journal/week03.md)
-- [ ] [Week 4](journal/week04.md)
-- [ ] [Week 5](journal/week05.md)
-- [ ] [Week 6](journal/week06.md)
-- [ ] [Week 7](journal/week07.md)
-- [ ] [Week 8](journal/week08.md)
-- [ ] [Week 9](journal/week09.md)
-- [ ] [Week 10](journal/week10.md)
-- [ ] [Week 11](journal/week11.md)
-- [ ] [Week 12](journal/week12.md)
-- [ ] [Week 13](journal/week13.md)
+ - Go to the IAM User Console, create a new user and new group with `AdministratorAccess`.
+ - Click on `Security Credentials` and `Create Access Key`. Download the CSV with the credentials.
+
+### Set Env Vars
+
+We'll tell Gitpod to remember these credentials if we relaunch our workspaces
+```
+gp env AWS_ACCESS_KEY_ID=""
+gp env AWS_SECRET_ACCESS_KEY=""
+gp env AWS_DEFAULT_REGION=us-east-1
+```
+
+### Check that the AWS CLI is working and you are the expected user
+
+```sh
+aws sts get-caller-identity
+```
+
+You will see output like this:
+```json
+{
+    "UserId": "AIFBZRJIQN2ONP4ET4EK4",
+    "Account": "655602346534",
+    "Arn": "arn:aws:iam::655602346534:user/andrewcloudcamp"
+}
+```
+## Create an AWS Budget
+
+We have created 2 files `budget.json` and `notifications-with-subscribers.json`.
+
+In `budget.json`, we set the BudgetLimit, BudgetName, BudgetType, CostTypes, TimePeriod and TimeUnit.
+
+In `notifications-with-subscribers.json`, we set the ComparisonOperator, NotificationType, Threshold and the email of the Subscribers.
+
+Run the command in terminal to create the budget.
+
+```sh
+aws budgets create-budget \
+    --account-id AccountID \
+    --budget file://aws/json/budget.json \
+    --notifications-with-subscribers file://aws/json/budget-notifications-with-subscribers.json
+```
+
+## Creating a Billing Alarm
+
+Create a SNS Topic which will return a TopicARN
+
+```sh
+aws sns create-topic --name billing-alarm
+```
+
+Create a subscription supply the TopicARN and our Email
+
+```sh
+aws sns subscribe \
+    --topic-arn TopicARN \
+    --protocol email \
+    --notification-endpoint your@email.com
+```
+
+Go to AWS SNS Console, check the topic to verify notification is created.
+
+### Create Alarm
+
+We have created the `alarm-config.json`. Replace the AlarmActions with the AWS SNS arn and execute the command.
+
+```sh
+aws cloudwatch put-metric-alarm --cli-input-json file://aws/json/alarm-config.json
+```
